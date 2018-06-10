@@ -3,10 +3,13 @@ service:
   publish: false # disable auto-publishing
 
 provider:
+  stage: dev
   name: aws
   region: eu-west-1
+
   runtime: nodejs8.10
-  stage: dev
+  memorySize: 128
+  versionFunctions: false
 
   environment:
     DYNAMODB_TABLE: ${opt:stage, self:provider.stage}-valters-query-example
@@ -35,7 +38,7 @@ package:
     handler.ts
 
 functions:
-  monitor-dynamo:
+  monitoring:
     handler: handler.find_failed_entries
 
     events:
