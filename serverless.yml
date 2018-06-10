@@ -1,0 +1,82 @@
+service:
+  name: dynamodb-query-ts
+  publish: false # disable auto-publishing
+
+provider:
+  name: aws
+  region: eu-west-1
+  runtime: nodejs8.10
+  stage: dev
+
+  environment:
+    DYNAMODB_TABLE: ${opt:stage, self:provider.stage}-valters-query-example
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}/*"
+
+    - Effect: Allow
+      Action:
+        - cloudwatch:PutMetricData
+      Resource: '*'
+
+package:
+  exclude:
+    - node_modules/**/*
+    - '!node_modules/@aws/**'
+    - '!node_modules/tslib/**'
+    - '!node_modules/utf8-bytes/**'
+    - '!node_modules/uuid/**'
+    - '!node_modules/reflect-metadata/**'
+
+  include:
+    handler.ts
+
+functions:
+  monitor-dynamo:
+    handler: handler.find_failed_entries
+
+    events:
+      - schedule:
+          name: dev-monitor-failed-entries
+          description: find entries with 'failed' status, update CW metrics
+          rate: rate(3 hours)
+          input:
+            stage: dev
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+
+resources:
+  Resources:
+    ValtersQueryExample:
+      Description: Stores status of blocks
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+
+        AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: status
+          AttributeType: S
+        KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        
+        GlobalSecondaryIndexes:
+        - IndexName: index-status
+          KeySchema:
+          - AttributeName: status
+            KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
