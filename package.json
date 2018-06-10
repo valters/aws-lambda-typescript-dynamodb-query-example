@@ -1,0 +1,30 @@
+{
+  "name": "aws-lambda-typescript-dynamodb-query-example",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/valters/aws-lambda-typescript-dynamodb-query-example"
+  },
+  "version": "1.0.0",
+  "description": "Example of AWS Lambda querying DynamoDb GSI Global Secondary Index (with DynamoDb Mapper) in TypeScript",
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": {
+    "name": "Valters Vingolds",
+    "email": "valters@vingolds.ch",
+    "url": "https://valte.rs"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "aws-sdk": "^2.254.1",
+    "@types/aws-lambda": "^8.10.6",
+    "@types/node": "^10.3.2",
+    "serverless-offline": "^3.25.4",
+    "serverless-plugin-typescript": "^1.1.5"
+  },
+  "dependencies": {
+    "@aws/dynamodb-data-mapper": "^0.5.0",
+    "@aws/dynamodb-data-mapper-annotations": "^0.5.0"
+  }
+}
